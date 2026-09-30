@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Travel Intelligence — plan a trip you can actually execute</title>
+<meta name="description" content="Enter a destination, budget and dates. Get a costed day-by-day itinerary, transport, rentals, weather and a downloadable travel guide — researched live with SerpApi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="wordmark">AI Travel <span>Intelligence</span></div>
+    <div class="status" id="status"><span class="dot"></span>Checking connection…</div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>Everything you need to actually take the trip.</h1>
+        <p class="lede">Not a list of pretty places. A costed plan: which train, which homestay, what the bikes cost per day, what the rain does to day three, and what's left of your budget at the end.</p>
+
+        <div class="deliverables">
+          <ul>
+            <li>Day-by-day itinerary with times and travel legs</li>
+            <li>Place details, entry fees and how long to stay</li>
+            <li>Trains, buses, flights, cabs and rentals with prices</li>
+            <li>Stays and places to eat near each day's route</li>
+            <li>Forecast for your dates, folded into the plan</li>
+            <li>Budget line by line, with per-person cost</li>
+            <li>What-if: change people, days, budget or transport</li>
+            <li>A PDF guide to carry on the road</li>
+          </ul>
+        </div>
+      </div>
+
+      <form class="slip" id="tripForm">
+        <div class="slip-head">
+          <h2>Trip request</h2>
+          <span class="ref">form 01 · all fields editable later</span>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="origin">Starting from</label>
+            <input type="text" id="origin" value="Kolkata" placeholder="Kolkata" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="destination">Going to</label>
+            <input type="text" id="destination" value="Meghalaya" placeholder="Meghalaya" autocomplete="off" required>
+          </div>
+        </div>
+
+        <div class="row-3">
+          <div class="field">
+            <label for="days">Days</label>
+            <input type="number" id="days" value="5" min="1" max="14">
+          </div>
+          <div class="field">
+            <label for="people">Travellers</label>
+            <input type="number" id="people" value="3" min="1" max="12">
+          </div>
+          <div class="field">
+            <label for="budget">Budget ₹</label>
+            <input type="number" id="budget" value="25000" min="0" step="500">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="style">Travel style</label>
+            <select id="style">
+              <option value="budget" selected>Budget</option>
+              <option value="balanced">Mid-range</option>
+              <option value="premium">Premium</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="startDate">Starting on</label>
+            <input type="date" id="startDate">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>What you're going for</label>
+          <div class="chips">
+            <button type="button" class="chip" data-group="interest" data-value="nature" aria-pressed="true">nature</button>
+            <button type="button" class="chip" data-group="interest" data-value="waterfalls" aria-pressed="true">waterfalls</button>
+            <button type="button" class="chip" data-group="interest" data-value="trekking" aria-pressed="true">trekking</button>
+            <button type="button" class="chip" data-group="interest" data-value="food" aria-pressed="false">food</button>
+            <button type="button" class="chip" data-group="interest" data-value="temples" aria-pressed="false">temples</button>
+            <button type="button" class="chip" data-group="interest" data-value="beaches" aria-pressed="false">beaches</button>
+            <button type="button" class="chip" data-group="interest" data-value="history" aria-pressed="false">history</button>
+            <button type="button" class="chip" data-group="interest" data-value="nightlife" aria-pressed="false">nightlife</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>How you want to move</label>
+          <div class="chips">
+            <button type="button" class="chip" data-group="transport" data-value="train" aria-pressed="true">train</button>
+            <button type="button" class="chip" data-group="transport" data-value="bus" aria-pressed="false">bus</button>
+            <button type="button" class="chip" data-group="transport" data-value="flight" aria-pressed="false">flight</button>
+            <button type="button" class="chip" data-group="transport" data-value="bike" aria-pressed="true">rented bike</button>
+            <button type="button" class="chip" data-group="transport" data-value="car" aria-pressed="false">car + driver</button>
+            <button type="button" class="chip" data-group="transport" data-value="walk" aria-pressed="false">on foot</button>
+          </div>
+        </div>
+
+        <button class="go" type="submit">Plan this trip</button>
+        <div class="foot">Research runs on SerpApi; weather on Open-Meteo. Both free tiers.</div>
+      </form>
+    </div>
+  </section>
+
+  <div id="loading" class="loading" hidden></div>
+
+  <div id="result" hidden>
+    <section class="section">
+      <div class="wrap">
+        <div class="notice" id="demoNote" hidden>No backend connected, so this is the built-in sample trip. Run the server with your SerpApi key to plan any destination live.</div>
+        <div class="summary-band">
+          <div>
+            <h2 id="headline"></h2>
+            <p class="sub" style="margin-top:.6rem" id="summary"></p>
+            <div id="route"></div>
+          </div>
+          <ul class="meta-list" id="meta"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="weatherWrap">
+      <div class="wrap">
+        <h2>Weather for your dates</h2>
+        <p class="sub">Wet days are marked; outdoor plans are moved off them.</p>
+        <div class="wx" id="weather"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <h2>The plan, day by day</h2>
+        <p class="sub">Times are suggestions. Travel legs show distance and how long they take.</p>
+        <div class="rail" id="itineraryDays"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <h2>Places on this route</h2>
+        <p class="sub">What each stop is, when to go, and how long it takes.</p>
+        <div class="places" id="places"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <h2>Getting there and getting around</h2>
+        <p class="sub">Fares are indicative and move with the season.</p>
+        <div id="transport"></div>
+
+        <div id="rentalsWrap" style="margin-top:2rem">
+          <h3 style="font-size:1.1rem;margin-bottom:.8rem">Bike, scooter and car rental</h3>
+          <table><thead><tr><th>Vehicle</th><th>Where</th><th>City</th><th>What they ask for</th><th class="amt">Price</th></tr></thead>
+          <tbody id="rentals"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <h2>What it costs</h2>
+        <p class="sub">Every line is worked from your group size, nights and travel style.</p>
+        <div class="budget-grid">
+          <div>
+            <table class="bill" id="bill"></table>
+            <div class="verdict" id="verdict"></div>
+          </div>
+          <div>
+            <h3 style="font-size:1.05rem;margin-bottom:.6rem">Where you can cut</h3>
+            <ul class="savings" id="savings"></ul>
+          </div>
+        </div>
+
+        <h3 style="font-size:1.05rem;margin:2.2rem 0 .8rem">Same trip, three ways</h3>
+        <div class="classes" id="classes"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <h2>What if something changes?</h2>
+        <p class="sub">Ask a question and the plan and the budget are worked out again.</p>
+        <div class="whatif">
+          <strong style="font-family:var(--display);font-size:.95rem">Try one:</strong>
+          <div class="asks" id="asks"></div>
+          <div class="whatif-out" id="whatifOut" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="two-col">
+          <div>
+            <h2 style="font-size:1.2rem;margin-bottom:.8rem">Pack this</h2>
+            <ul class="tick" id="packing"></ul>
+          </div>
+          <div>
+            <h2 style="font-size:1.2rem;margin-bottom:.8rem">Know before you go</h2>
+            <ul class="tick" id="tips"></ul>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top:2.5rem">
+          <div>
+            <h2 style="font-size:1.2rem;margin-bottom:.8rem">If something goes wrong</h2>
+            <ul class="tick" id="emergency"></ul>
+          </div>
+          <div>
+            <h2 style="font-size:1.2rem;margin-bottom:.8rem">Where this came from</h2>
+            <div class="sources" id="sources"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="pdf">Download the travel guide (PDF)</button>
+          <button class="ghost" id="print">Print this page</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>Built on free tiers: SerpApi for research, Open-Meteo for weather, OpenStreetMap for geocoding, Groq or Gemini for the writing.</div>
+    <div><button id="demo" style="background:none;border:0;color:var(--pine);font-family:var(--display);cursor:pointer;padding:0">See a sample trip</button></div>
+  </div>
+</footer>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

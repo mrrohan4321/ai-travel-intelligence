@@ -1,0 +1,20 @@
+{
+  "name": "ai-travel-intelligence",
+  "version": "1.0.0",
+  "description": "AI-powered trip planner: SerpApi research + free weather/geo/LLM APIs -> day-by-day itinerary, budget, what-if simulator and a downloadable PDF travel guide.",
+  "type": "module",
+  "main": "backend/index.js",
+  "scripts": {
+    "start": "node backend/index.js",
+    "dev": "node --watch backend/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsdom": "^30.1.0"
+  },
+  "license": "MIT"
+}
