@@ -6,7 +6,7 @@
 
 Built entirely on **free tiers**. No paid API anywhere in the stack.
 
-🎥 **Demo Video:** [add link]()
+🎥 **Demo Video:** [https://youtu.be/anAh1D-6G3k](https://youtu.be/anAh1D-6G3k)
 📦 **Repository:** [github.com/mrrohan4321/ai-travel-intelligence](https://github.com/mrrohan4321/ai-travel-intelligence)
 
 ---
